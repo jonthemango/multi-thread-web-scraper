@@ -8,4 +8,7 @@ db = SQLAlchemy(application)
 
 # Import API blue prints and register them to the application
 from src.api.issue_job import issue_job
+from src.api.get_job import get_job
+
 application.register_blueprint(issue_job)
+application.register_blueprint(get_job)
