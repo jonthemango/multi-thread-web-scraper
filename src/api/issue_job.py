@@ -10,30 +10,32 @@ issue_job = Blueprint('issue_job', __name__)
 
 def handle_url(url_job):
     url, job_id = url_job
-    print("Handling URL")
+    application.logger.info("Handling URL Task: " + url)
     job = Job.query.filter_by(id=job_id).first()
     image_urls = recursively_scrape(url)
-    print("Get Image Urls")
+    application.logger.info("Got Image Urls: " + url)
     for image_url in image_urls:
         mapping = UrlImageMapping(job_id=job.id, site_url=url, image_url=image_url)
         db.session.add(mapping)
     task = job.get_task(url)
     task.set_done()
-    print(task.completed)
     db.session.commit()
+    application.logger.info("Task is completed: " + url)
+
     
 
 
 
-@issue_job.route('/', defaults={'number_of_threads': 1}, methods=["GET", "POST"])
 @issue_job.route('/<int:number_of_threads>', methods=["GET", "POST"])
+@issue_job.route('/', defaults={'number_of_threads': 1}, methods=["GET", "POST"])
 def main(number_of_threads):
     if request.method == "POST":
-
         urls = request.json["urls"]
         
         # Add a job
         job = Job(number_of_threads=number_of_threads,urls=urls)
+        application.logger.info("Incoming request. Starting job: " + job.id)
+
 
         db.session.add(job)
         db.session.commit()

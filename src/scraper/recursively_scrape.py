@@ -2,10 +2,16 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
+from src.app import application, db
 
 
 image_extensions = ['.png', '.gif', '.jpg', '.svg']
 def recursively_scrape(url, current_depth=1, max_depth=2):
+
+    if current_depth == 1:
+        application.logger.info("Querying: " + url)
+
+
 
     try:
         # query the url, if theres an error then return empty list
@@ -33,8 +39,14 @@ def recursively_scrape(url, current_depth=1, max_depth=2):
         link = anchor.get("href")
         child_url = urljoin(url, link)
         child_list = recursively_scrape(child_url, current_depth+1,max_depth)
+        if current_depth == 1:
+            application.logger.info("Collected " + str(len(child_list)) + " image urls from: " + child_url)
+
         url_list.extend(child_list) # merge the children list with the current list
 
-    return url_list
+    
+    
+
+    return list(dict.fromkeys(url_list)) # remove duplicates
 
 
