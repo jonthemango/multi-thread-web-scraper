@@ -1,5 +1,9 @@
-# multi-thread-web-scraper
-Multi-threading Web Scraper
+# Multi-threading Web Scraper
+This application starts a web server at port 5000 which accepts requests containing a list of urls and a number of threads (N). It responds with the job id that users can use to query the status of the job. Each url is treated as a task and is add to a thread pool containing N available workers. The ThreadPool uses non-blocking threading which allows a quick response for API requests. The workers process each url by visiting the web page associated with it, collecting the src of all `<img>` tags on the page as well as the src of all `<img>` tags on every page referenced by an `<a>` tag. It does this recursively (currently set to max depth of 2). Users can then use the job id to query the status and results of the job.
+
+The application is built using Python 3.7, Python flask framework, gunicorn for launching the web server, the Python threading module, the Beautiful Soup for parsing HTML, flask-SQLalchemy as an ORM for a basic SQLite database and Docker.
+
+There are several design improvements can could be made. For one, currently the database is SQLite which resides as a file on disk inside of the docker image. This could be improved by allowing connections to an outside database connection, allowing this docker image to scale to multiple instances. Another possible improvement would be to restart URL tasks if threads/gunicorn workers die. Currently. if processing of the tasks are dropped, they are not re-issued to start completion.
 
 ## Build
 ```
@@ -59,5 +63,5 @@ curl --location --request GET 'http://192.168.99.100:5000/result/585c5656-6237-1
 ```
 
 ## Arch and Design
-
+![image](https://user-images.githubusercontent.com/10063663/76257610-64f1bf00-6228-11ea-81f6-af2c1bfa0d2d.png)
 
