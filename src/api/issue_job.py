@@ -13,7 +13,7 @@ def handle_url(url_job):
     print("Handling URL")
     job = Job.query.filter_by(id=job_id).first()
     image_urls = recursively_scrape(url)
-    print("Acquire Image Urls")
+    print("Get Image Urls")
     for image_url in image_urls:
         mapping = UrlImageMapping(job_id=job.id, site_url=url, image_url=image_url)
         db.session.add(mapping)
