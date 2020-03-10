@@ -8,11 +8,18 @@ There are several design improvements that could be made. For one, currently the
 # Docker
 
 ## Build
+Start by downloading the repository and cd into it.
+```
+git clone https://github.com/jonthemango/multi-thread-web-scraper.git
+cd multi-thread-web-scraper
+```
+Inside you can build the docker image by running the following.
 ```
 docker build -t crawler_test -f Dockerfile ./
 ```
 
 ## Run
+Once built you can run it using the following.
 ```
 docker run --name ct -p 5000:5000 crawler_test
 ```
