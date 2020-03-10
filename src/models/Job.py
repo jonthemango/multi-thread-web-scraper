@@ -35,10 +35,16 @@ class Job (db.Model):
             if task.completed == 1:
                 url_result = task.get_result()
                 result[task.site_url] = url_result
+            else:
+                result[task.site_url] = []
         return result
     
     def get_task(self, site_url):
         return UrlTask.query.filter_by(job_id=self.id, site_url=site_url).first()      
+    
+    def get_tasks(self):
+        return UrlTask.query.filter_by(job_id=self.id).all()
+
 
 
 
@@ -51,7 +57,7 @@ class UrlTask (db.Model):
 
     def get_result(self):
         # get all UrlImageMappings where job_id and site_url match
-        image_mappings = UrlImageMapping.query.filter_by(job_id=self.job_id, site_url=self.site_url).all()
+        image_mappings = UrlImageMapping.query.filter_by(job_id=self.job_id, task_id=self.id).all()
 
         # map that object to a list of urls
         list_of_image_urls = list(map(lambda imageMapping: imageMapping.image_url, image_mappings))
@@ -65,6 +71,7 @@ class UrlTask (db.Model):
 class UrlImageMapping (db.Model):
     id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.String(100))
+    task_id = db.Column(db.Integer)
     site_url = db.Column(db.String(2000))
     image_url = db.Column(db.String(2000))
 

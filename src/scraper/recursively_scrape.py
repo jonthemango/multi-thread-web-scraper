@@ -24,11 +24,22 @@ def recursively_scrape(url, current_depth=1, max_depth=2):
     soup = BeautifulSoup(html, 'html.parser')
     url_list = []
 
-    # get all image tags, get their absolute source and append
+    # get all image tags, get their absolute source and append        
+
     for raw_img in soup.find_all('img'):
         link = raw_img.get('src')
         img_url = urljoin(url, link)
         url_list.append(img_url)
+    
+    for raw_img in soup.find_all("link"):
+        link = raw_img.get("href")
+        is_image = any(map(lambda ext: ext in link,image_extensions)) # true if any of the extensions is contained within the url
+        if is_image:
+            img_url = urljoin(url, link)
+            url_list.append(img_url)
+
+
+        
     
     # base case, if we've reached max depth then don't go to children
     if current_depth == max_depth:
