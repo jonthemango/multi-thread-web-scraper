@@ -6,7 +6,7 @@ from src.app import application, db
 
 
 image_extensions = ['.png', '.gif', '.jpg', '.svg']
-def recursively_scrape(url, current_depth=1, max_depth=2):
+def recursively_scrape(url, current_depth=1, max_depth=2, urls_visited=[]):
 
     if current_depth == 1:
         application.logger.info("Querying: " + url)
@@ -33,6 +33,11 @@ def recursively_scrape(url, current_depth=1, max_depth=2):
     
     for raw_img in soup.find_all("link"):
         link = raw_img.get("href")
+
+        # if href not set then link is None and therefore not iterable
+        if link is None:
+            continue
+        
         is_image = any(map(lambda ext: ext in link,image_extensions)) # true if any of the extensions is contained within the url
         if is_image:
             img_url = urljoin(url, link)
@@ -49,7 +54,14 @@ def recursively_scrape(url, current_depth=1, max_depth=2):
     for anchor in soup.find_all('a'):
         link = anchor.get("href")
         child_url = urljoin(url, link)
-        child_list = recursively_scrape(child_url, current_depth+1,max_depth)
+
+        # prevent visiting the same places
+        if child_url in urls_visited:
+            continue
+        else:
+            urls_visited.append(child_url)
+
+        child_list = recursively_scrape(child_url, current_depth+1,max_depth, urls_visited)
         if current_depth == 1:
             application.logger.info("Collected " + str(len(child_list)) + " image urls from: " + child_url)
 
@@ -58,6 +70,6 @@ def recursively_scrape(url, current_depth=1, max_depth=2):
     
     
 
-    return list(dict.fromkeys(url_list)) # remove duplicates
+    return list(set(url_list)) # remove duplicates using set
 
 
